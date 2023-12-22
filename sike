@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Function to search AUR and display results
+search_aur() {
+    query=$(zenity --entry --title="Search AUR" --text="Enter your search term:")
+    results=$(yay -Ss "$query" | awk '/aur\// {print $1}')
+    selected_package=$(zenity --list --radiolist --title="Search Results" --column="Select" --column="Packages" FALSE $results)
+    echo $selected_package
+}
+
+# Function to install or uninstall packages
+manage_package() {
+    action=$(zenity --list --radiolist --title="Choose Action" --column="Select" --column="Action" FALSE "Install" FALSE "Uninstall")
+    package=$(search_aur)
+    if [ "$action" == "Install" ]; then
+        yay -S "$package" > /dev/null 2>&1
+        zenity --info --text="Package $package installed successfully."
+    else
+        yay -R "$package" > /dev/null 2>&1
+        zenity --info --text="Package $package uninstalled successfully."
+    fi
+}
+
+# Main script
+manage_package
